@@ -41,7 +41,7 @@ def run(*cmd):
     """Run a command without running a shell"""
     command = []
     if len(cmd) == 1:
-        if isinstance(cmd[0], basestring):
+        if isinstance(cmd[0], str):
             command = cmd[0].split()
         else:
             command = cmd[0]
@@ -78,9 +78,9 @@ class FileLock:
         if timeout != -1:
             _type |= fcntl.LOCK_NB
 
-        self.fd = os.open(self.filename, os.O_WRONLY | os.O_CREAT, 0600)
+        self.fd = os.open(self.filename, os.O_WRONLY | os.O_CREAT, 0o600)
         if self.fd == -1:
-            raise IOError, "Cannot create lock file"
+            raise IOError("Cannot create lock file")
 
         while True:
             try:
