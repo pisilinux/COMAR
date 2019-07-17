@@ -40,13 +40,13 @@ get_obj_sign(PyObject *obj)
      *
      */
 
-    if (PyString_Check(obj) || PyUnicode_Check(obj)) {
+    if (PyUnicode_Check(obj) || PyUnicode_Check(obj)) {
         return "s";
     }
     else if (PyBool_Check(obj)) {
         return "b";
     }
-    else if (PyInt_Check(obj)) {
+    else if (PyLong_Check(obj)) {
         return "i";
     }
     else if (PyLong_Check(obj)) {
@@ -105,7 +105,7 @@ pydbus_export(DBusMessageIter *iter, PyObject *obj, char *signature)
     for (i = 0; i < PyTuple_Size(obj); i++) {
         PyObject *py_sign = PyList_GetItem(py_list, i);
         PyObject *py_item = PyTuple_GetItem(obj, i);
-        if (pydbus_export_item(iter, py_item, PyString_AsString(py_sign)) != 0) {
+        if (pydbus_export_item(iter, py_item, PyUnicode_AsUTF8(py_sign)) != 0) {
             return -1;
         }
     }
@@ -226,8 +226,8 @@ pydbus_export_item(DBusMessageIter *iter, PyObject *obj, char *signature)
             e = dbus_message_iter_append_basic(iter, DBUS_TYPE_BOOLEAN, &p.b);
             break;
         case 'n':
-            if (PyInt_Check(obj)) {
-                p.i16 = (short) PyInt_AsLong(obj);
+            if (PyLong_Check(obj)) {
+                p.i16 = (short) PyLong_AsLong(obj);
             }
             else {
                 // TODO: Raise error
@@ -236,8 +236,8 @@ pydbus_export_item(DBusMessageIter *iter, PyObject *obj, char *signature)
             e = dbus_message_iter_append_basic(iter, DBUS_TYPE_INT16, &p.i16);
             break;
         case 'q':
-            if (PyInt_Check(obj)) {
-                p.u16 = (unsigned short) PyInt_AsLong(obj);
+            if (PyLong_Check(obj)) {
+                p.u16 = (unsigned short) PyLong_AsLong(obj);
             }
             else {
                 // TODO: Raise error
@@ -246,8 +246,8 @@ pydbus_export_item(DBusMessageIter *iter, PyObject *obj, char *signature)
             e = dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT16, &p.u16);
             break;
         case 'i':
-            if (PyInt_Check(obj)) {
-                p.i32 = (int) PyInt_AsLong(obj);
+            if (PyLong_Check(obj)) {
+                p.i32 = (int) PyLong_AsLong(obj);
             }
             else {
                 // TODO: Raise error
@@ -256,8 +256,8 @@ pydbus_export_item(DBusMessageIter *iter, PyObject *obj, char *signature)
             e = dbus_message_iter_append_basic(iter, DBUS_TYPE_INT32, &p.i32);
             break;
         case 'u':
-            if (PyInt_Check(obj)) {
-                p.u32 = (long) PyInt_AsLong(obj);
+            if (PyLong_Check(obj)) {
+                p.u32 = (long) PyLong_AsLong(obj);
             }
             else {
                 // TODO: Raise error
@@ -289,8 +289,8 @@ pydbus_export_item(DBusMessageIter *iter, PyObject *obj, char *signature)
             e = dbus_message_iter_append_basic(iter, DBUS_TYPE_DOUBLE, &p.d);
             break;
         case 's':
-            if (PyString_Check(obj)) {
-                p.s = PyString_AsString(obj);
+            if (PyUnicode_Check(obj)) {
+                p.s = PyUnicode_AsUTF8(obj);
             }
             else {
                 // TODO: Raise error

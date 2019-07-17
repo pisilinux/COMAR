@@ -106,7 +106,7 @@ script_signature(const char *model, const char *member, int direction)
     PyObject *py_models = PyDict_GetItemString(py_core, "models");
     PyObject *py_model = PyDict_GetItemString(py_models, model);
     PyObject *py_method = PyDict_GetItemString(py_model, member);
-    PyObject *py_str = PyString_FromString("");
+    PyObject *py_str = PyUnicode_FromString("");
     PyObject *py_list;
 
     if (direction == 0) {
@@ -118,10 +118,10 @@ script_signature(const char *model, const char *member, int direction)
 
     int i;
     for (i = 0; i < PyList_Size(py_list); i++) {
-        PyString_Concat(&py_str, PyList_GetItem(py_list, i));
+        PyUnicode_Concat(&py_str, PyList_GetItem(py_list, i));
     }
 
-    return PyString_AsString(py_str);
+    return PyUnicode_AsUTF8(py_str);
 }
 
 //! Splits signature into atomic DBus object signatures
@@ -144,7 +144,7 @@ script_signature_each(const char *signature)
             return NULL;
         }
         else {
-            PyList_Append(py_list, PyString_FromString(sign));
+            PyList_Append(py_list, PyUnicode_FromString(sign));
         }
 
         dbus_free(sign);
@@ -179,10 +179,10 @@ py_catch(char **eStr, char **vStr, int log)
         return;
     }
 
-    *eStr = PyString_AsString(PyObject_GetAttrString(py_type, "__name__"));
+    *eStr = PyUnicode_AsUTF8(PyObject_GetAttrString(py_type, "__name__"));
 
     if (py_value) {
-        *vStr = PyString_AsString(PyObject_Str(py_value));
+        *vStr = PyUnicode_AsUTF8(PyObject_Str(py_value));
     }
 
     if (log == 0) {
@@ -195,9 +195,9 @@ py_catch(char **eStr, char **vStr, int log)
     while (py_trace != NULL && py_trace != Py_None) {
         py_frame = PyObject_GetAttrString(py_trace, "tb_frame");
         py_code = PyObject_GetAttrString(py_frame, "f_code");
-        log_error("    File %s, line %d, in %s()\n", PyString_AsString(PyObject_GetAttrString(py_code, "co_filename")),
-                                                   (int) PyInt_AsLong(PyObject_GetAttrString(py_trace, "tb_lineno")),
-                                                   PyString_AsString(PyObject_GetAttrString(py_code, "co_name")));
+        log_error("    File %s, line %d, in %s()\n", PyUnicode_AsUTF8(PyObject_GetAttrString(py_code, "co_filename")),
+                                                   (int) PyLong_AsLong(PyObject_GetAttrString(py_trace, "tb_lineno")),
+                                                   PyUnicode_AsUTF8(PyObject_GetAttrString(py_code, "co_name")));
         py_trace = PyObject_GetAttrString(py_trace, "tb_next");
     }
 }
@@ -217,8 +217,8 @@ sender_language()
     PyObject *py_locales = PyDict_GetItemString(py_core, "locales");
     const char *lang;
 
-    if (PyDict_Contains(py_locales, PyString_FromString(sender))) {
-        lang = PyString_AsString(PyDict_GetItemString(py_locales, sender));
+    if (PyDict_Contains(py_locales, PyUnicode_FromString(sender))) {
+        lang = PyUnicode_AsUTF8(PyDict_GetItemString(py_locales, sender));
     }
     else {
         lang = "en";
@@ -241,11 +241,11 @@ validate_model_member(const char *model, const char *member, int type)
      *
      */
 
-    if (PyDict_Contains(PyDict_GetItemString(py_core, "models"), PyString_FromString(model))) {
+    if (PyDict_Contains(PyDict_GetItemString(py_core, "models"), PyUnicode_FromString(model))) {
         PyObject *py_dict_model = PyDict_GetItemString(PyDict_GetItemString(py_core, "models"), model);
-        if (PyDict_Contains(py_dict_model, PyString_FromString(member))) {
+        if (PyDict_Contains(py_dict_model, PyUnicode_FromString(member))) {
             PyObject *py_tuple = PyDict_GetItemString(py_dict_model, member);
-            if (PyInt_AsLong(PyTuple_GetItem(py_tuple, 0)) == (long) type) {
+            if (PyLong_AsLong(PyTuple_GetItem(py_tuple, 0)) == (long) type) {
                 return 0;
             }
         }
@@ -258,7 +258,7 @@ static PyObject *
 c_bus_path(PyObject *self, PyObject *args)
 {
     const char *path = dbus_message_get_path(my_proc.bus_msg);
-    PyObject *py_str = PyString_FromString(path);
+    PyObject *py_str = PyUnicode_FromString(path);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -268,7 +268,7 @@ static PyObject *
 c_bus_interface(PyObject *self, PyObject *args)
 {
     const char *iface = dbus_message_get_interface(my_proc.bus_msg);
-    PyObject *py_str = PyString_FromString(iface);
+    PyObject *py_str = PyUnicode_FromString(iface);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -278,7 +278,7 @@ static PyObject *
 c_bus_member(PyObject *self, PyObject *args)
 {
     const char *member = dbus_message_get_member(my_proc.bus_msg);
-    PyObject *py_str = PyString_FromString(member);
+    PyObject *py_str = PyUnicode_FromString(member);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -288,7 +288,7 @@ static PyObject *
 c_bus_sender(PyObject *self, PyObject *args)
 {
     const char *sender = dbus_message_get_sender(my_proc.bus_msg);
-    PyObject *py_str = PyString_FromString(sender);
+    PyObject *py_str = PyUnicode_FromString(sender);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -302,7 +302,7 @@ c_package(PyObject *self, PyObject *args)
     if (strncmp(path, "/package/", strlen("/package/")) == 0) {
         const char *app = strsub(path, strlen("/package/"), strlen(path));
         if (strlen(app) > 0) {
-            return PyString_FromString(app);
+            return PyUnicode_FromString(app);
         }
     }
 
@@ -319,7 +319,7 @@ c_model(PyObject *self, PyObject *args)
     if (strncmp(iface, config_interface, strlen(config_interface)) == 0) {
         const char *model = strsub(iface, strlen(config_interface) + 1, strlen(iface));
         if (strlen(model) > 0) {
-            return PyString_FromString(model);
+            return PyUnicode_FromString(model);
         }
     }
 
@@ -338,9 +338,9 @@ c_i18n(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    PyObject *py_lang = PyString_FromString(sender_language());
+    PyObject *py_lang = PyUnicode_FromString(sender_language());
     if (!PyDict_Contains(py_dict, py_lang)) {
-        py_lang = PyString_FromString("en");
+        py_lang = PyUnicode_FromString("en");
     }
 
     if (PyDict_Contains(py_dict, py_lang)) {
@@ -459,7 +459,7 @@ c_fail(PyObject *self, PyObject *args)
 static PyObject *
 c_cfg_datapath(PyObject *self, PyObject *args)
 {
-    PyObject *py_str = PyString_FromString(config_dir_data);
+    PyObject *py_str = PyUnicode_FromString(config_dir_data);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -477,7 +477,7 @@ c_cfg_modelbase(PyObject *self, PyObject *args)
 static PyObject *
 c_cfg_interface(PyObject *self, PyObject *args)
 {
-    PyObject *py_str = PyString_FromString(config_interface);
+    PyObject *py_str = PyUnicode_FromString(config_interface);
     Py_INCREF(py_str);
     return py_str;
 }
@@ -533,7 +533,7 @@ py_execute(const char *app, const char *model, const char *method, PyObject *py_
     py_module = PyImport_ImportModule("sys");
     py_dict = PyModule_GetDict(py_module);
     py_list = PyDict_GetItemString(py_dict, "path");
-    PyList_Insert(py_list, 0, PyString_FromString(config_dir_modules));
+    PyList_Insert(py_list, 0, PyUnicode_FromString(config_dir_modules));
 
     // Put CSL methods into __builtin__
     py_mod_builtin = PyImport_AddModule("__builtin__");
@@ -624,7 +624,7 @@ py_execute(const char *app, const char *model, const char *method, PyObject *py_
     else {
         // Check if PolicyKit action defined at runtime
         if (PyObject_HasAttrString(py_func, "policy_action_id")) {
-            const char *action_id = PyString_AsString(PyObject_GetAttrString(py_func, "policy_action_id"));
+            const char *action_id = PyUnicode_AsUTF8(PyObject_GetAttrString(py_func, "policy_action_id"));
             const char *sender = dbus_message_get_sender(my_proc.bus_msg);
 
             int result;
