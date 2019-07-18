@@ -12,4 +12,4 @@ def info():
 
 def start():
     notify("System.Service", "Changed", (script(), "started"))
-    print _(MSG)
+    print(_(MSG))
