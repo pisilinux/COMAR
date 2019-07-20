@@ -40,7 +40,7 @@ def register(app, model, filename):
     except:
         pass
     try:
-        file(scriptFile, "w").write("")
+        open(scriptFile, "w").write("")
     except:
         pass
 

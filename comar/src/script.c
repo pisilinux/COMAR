@@ -118,7 +118,7 @@ script_signature(const char *model, const char *member, int direction)
 
     int i;
     for (i = 0; i < PyList_Size(py_list); i++) {
-        PyUnicode_Concat(&py_str, PyList_GetItem(py_list, i));
+        PyUnicode_Concat(py_str, PyList_GetItem(py_list, i));
     }
 
     return PyUnicode_AsUTF8(py_str);
@@ -520,10 +520,9 @@ py_execute(const char *app, const char *model, const char *method, PyObject *py_
      *
      */
 
-    PyObject *py_mod_script, *py_mod_builtin;
-    PyObject *py_dict_script, *py_dict_builtin;
-    PyObject *py_code, *py_method_code, *py_kwargs, *py_func = NULL;
-    PyMethodDef *py_method;
+    PyObject *py_mod_script;
+    PyObject *py_dict_script;
+    PyObject *py_code, *py_kwargs, *py_func = NULL;
 
     PyObject *py_module, *py_dict, *py_list;
     PyObject *py_dict_core;
@@ -536,12 +535,15 @@ py_execute(const char *app, const char *model, const char *method, PyObject *py_
     PyList_Insert(py_list, 0, PyUnicode_FromString(config_dir_modules));
 
     // Put CSL methods into __builtin__
-    py_mod_builtin = PyImport_AddModule("__builtin__");
-    py_dict_builtin = PyModule_GetDict(py_mod_builtin);
-    for (py_method = methods; py_method->ml_name; py_method++) {
-        py_method_code = PyCFunction_New(py_method, NULL);
-        PyDict_SetItemString(py_dict_builtin, py_method->ml_name, py_method_code);
-    }
+//    py_mod_builtin = PyImport_AddModule("__builtin__");
+//    py_dict_builtin = PyModule_GetDict(py_mod_builtin);
+//    for (py_method = methods; py_method->ml_name; py_method++) {
+//        py_method_code = PyCFunction_New(py_method, NULL);
+//        PyDict_SetItemString(py_dict_builtin, py_method->ml_name, py_method_code);
+//    }
+
+    PyObject *builtins = PyImport_ImportModule("builtins");
+    PyModule_AddFunctions(builtins, methods);
 
     // If model and application name given, try to execute method on registered script
     if (model != NULL && app != NULL) {

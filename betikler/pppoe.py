@@ -186,7 +186,7 @@ lock
 
         list = []
         try:
-            f = file("/etc/ppp/resolv.conf", "r")
+            f = open("/etc/ppp/resolv.conf", "r")
             for line in f.readlines():
                 if line.strip().startswith("nameserver"):
                     list.append(line[line.find("nameserver") + 10:].rstrip('\n').strip())
@@ -229,7 +229,7 @@ lock
             # Ugly way to clean up secrets and recreate
             self.silentUnlink("/etc/ppp/pap-secrets")
             self.silentUnlink("/etc/ppp/chap-secrets")
-            f = os.open("/etc/ppp/pap-secrets", os.O_CREAT, 0600)
+            f = os.open("/etc/ppp/pap-secrets", os.O_CREAT, 0o600)
             os.close(f)
             os.symlink("/etc/ppp/pap-secrets", "/etc/ppp/chap-secrets")
         except:
