@@ -37,7 +37,7 @@ def loadConfig(filename=None):
         filename = "/etc/conf.d/%s" % serviceConf
     if not os.path.exists(filename):
         return conf
-    for line in file(filename):
+    for line in open(filename):
         if line != "" and not line.startswith("#") and "=" in line:
             key, value = line.split("=", 1)
             key = key.strip()
@@ -70,7 +70,7 @@ def is_on():
 def loadEnvironment():
     basePath = "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:"
     if os.path.exists("/etc/profile.env"):
-        for line in file("/etc/profile.env"):
+        for line in open("/etc/profile.env"):
             if line.startswith("export "):
                 key, value = line[7:].strip().split("=", 1)
                 os.environ[key] = value[1:-1]
@@ -119,15 +119,15 @@ def startDependencies(*services):
 def _getPid(pidfile):
     """Read process ID from a .pid file."""
     try:
-        pid = file(pidfile).read()
-    except IOError, e:
+        pid = open(pidfile).read()
+    except IOError as e:
         if e.errno != 2:
             raise
         return None
     # Some services put custom data after the first line
     pid = pid.split("\n")[0].strip()
     # Non-pid data is also seen when stopped state in some services :/
-    if len(pid) == 0 or len(filter(lambda x: not x in "0123456789", pid)) > 0:
+    if len(pid) == 0 or len([x for x in pid if not x in "0123456789"]) > 0:
         return None
     return int(pid)
 
@@ -143,7 +143,7 @@ def _checkPid(pid, user_uid=None, command=None, name=None):
     if user_uid:
         try:
             st = os.stat(path)
-        except OSError, e:
+        except OSError as e:
             if e.errno != 2:
                 raise
             return False
@@ -152,8 +152,8 @@ def _checkPid(pid, user_uid=None, command=None, name=None):
     # Check that process is an instance of the correct binary
     if command:
         try:
-            cmdline = file("%s/cmdline" % path).read()
-        except IOError, e:
+            cmdline = open("%s/cmdline" % path).read()
+        except IOError as e:
             if e.errno != 2:
                 raise
             return False
@@ -161,8 +161,8 @@ def _checkPid(pid, user_uid=None, command=None, name=None):
             return False
     elif name:
         try:
-            stats = file("%s/stat" % path).read()
-        except IOError, e:
+            stats = open("%s/stat" % path).read()
+        except IOError as e:
             if e.errno != 2:
                 raise
             return False
@@ -232,7 +232,7 @@ def startService(command, args=None, pidfile=None, makepid=False, nice=None, det
     """
     cmd = [ command ]
     if args:
-        if isinstance(args, basestring):
+        if isinstance(args, str):
             args = shlex.split(args)
         cmd.extend(args)
 
@@ -254,7 +254,7 @@ def startService(command, args=None, pidfile=None, makepid=False, nice=None, det
         if detach:
             # Set umask to a sane value
             # (other and group has no write permission by default)
-            os.umask(022)
+            os.umask(0o22)
             # Detach from controlling terminal
             try:
                 tty_fd = os.open("/dev/tty", os.O_RDWR)
@@ -272,7 +272,7 @@ def startService(command, args=None, pidfile=None, makepid=False, nice=None, det
         if nice is not None:
             os.nice(nice)
         if makepid and pidfile:
-            file(pidfile, "w").write("%d\n" % os.getpid())
+            open(pidfile, "w").write("%d\n" % os.getpid())
         if chuid:
             _changeUID(chuid)
 
@@ -316,7 +316,7 @@ def stopService(pidfile=None, command=None, args=None, chuid=None, user=None, na
     if command and args is not None:
         cmd = [ command ]
         if args:
-            if isinstance(args, basestring):
+            if isinstance(args, str):
                 args = shlex.split(args)
             cmd.extend(args)
 
@@ -422,7 +422,7 @@ def setState(state=None):
             os.makedirs(_dir)
 
     def touch(_file):
-        file(_file, "w").close()
+        open(_file, "w").close()
 
     def remove(_file):
         os.unlink(_file)
@@ -458,7 +458,7 @@ def registerState():
             os.makedirs(_dir)
 
     def touch(_file):
-        file(_file, "w").close()
+        open(_file, "w").close()
 
     makeDir("/etc/mudur/services/enabled")
     makeDir("/etc/mudur/services/conditional")

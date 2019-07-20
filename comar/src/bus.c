@@ -303,7 +303,7 @@ bus_call(const char *path, const char *interface, const char *member, PyObject *
 
     // setLocale first
     PyObject *args = PyTuple_New(1);
-    PyTuple_SetItem(args, 0, PyString_FromString(lang));
+    PyTuple_SetItem(args, 0, PyUnicode_FromString(lang));
 
     PyObject *ret = bus_execute(conn, "/", config_interface, "setLocale", args, 25, "s");
     if (!ret) {

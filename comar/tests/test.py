@@ -10,4 +10,4 @@ obj = bus.get_object('tr.org.pardus.comar3', '/', introspect=False)
 obj.setLocale('tr', dbus_interface='tr.org.pardus.comar3')
 
 obj = bus.get_object('tr.org.pardus.comar3', '/package/apache', introspect=False)
-print obj.info(dbus_interface='tr.org.pardus.comar3.System.Service', timeout=60)
+print(obj.info(dbus_interface='tr.org.pardus.comar3.System.Service', timeout=60))

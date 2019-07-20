@@ -10,14 +10,14 @@ import os
 import piksemel
 
 def printUsage():
-    print "Usage: %s <command>" % sys.argv[0]
-    print "Commands:"
-    print "  call <app> <model> <method> <arguments>"
-    print "  list-apps [model]"
-    print "  list-models <app>"
-    print "  list-methods <app> <model>"
-    print "  register <app> <model> <script.py>"
-    print "  remove <app>"
+    print("Usage: %s <command>" % sys.argv[0])
+    print("Commands:")
+    print("  call <app> <model> <method> <arguments>")
+    print("  list-apps [model]")
+    print("  list-models <app>")
+    print("  list-methods <app> <model>")
+    print("  register <app> <model> <script.py>")
+    print("  remove <app>")
     sys.exit(1)
 
 def introspect(link, path="/"):
@@ -60,33 +60,33 @@ def main():
             try:
                 _group, _class = model.split(".")
             except ValueError:
-                print "Invalid model name"
+                print("Invalid model name")
                 return -1
             apps = list(comar.Call(link, _group, _class))
         else:
             apps, interfaces = introspect(link, "/package")
         for app in apps:
-            print app
+            print(app)
     elif sys.argv[1] == "list-models":
         try:
             app = sys.argv[2]
         except IndexError:
-            print "Application name is required."
+            print("Application name is required.")
             return -1
         apps, interfaces = introspect(link, "/package/%s" % app)
         for interface in interfaces:
-            print interface
+            print(interface)
     elif sys.argv[1] == "list-methods":
         try:
             app = sys.argv[2]
             model = sys.argv[3]
         except IndexError:
-            print "Application and model name are required."
+            print("Application and model name are required.")
             return -1
         apps, interfaces = introspect(link, "/package/%s" % app)
         if model in interfaces:
             for method in interfaces[model]:
-                print method
+                print(method)
     elif sys.argv[1] == "register":
         try:
             app = sys.argv[2]
@@ -111,7 +111,7 @@ def main():
         try:
             _group, _class = model.split(".")
         except ValueError:
-            print "Invalid model name"
+            print("Invalid model name")
             return -1
         met = comar.Call(link, _group, _class, app, method)
         try:
@@ -122,15 +122,15 @@ def main():
                         args.append(eval(i))
                     else:
                         args.append(i)
-                print met.call(*args)
+                print(met.call(*args))
             else:
-                print met.call()
-        except dbus.exceptions.DBusException, e:
+                print(met.call())
+        except dbus.exceptions.DBusException as e:
             if e._dbus_error_name.endswith(".Comar.PolicyKit"):
-                print "Access to '%s' PolicyKit action required." % e.get_dbus_message()
+                print("Access to '%s' PolicyKit action required." % e.get_dbus_message())
             else:
-                print "Error:"
-                print "  %s" % e.get_dbus_message()
+                print("Error:")
+                print("  %s" % e.get_dbus_message())
             return -1
     else:
         printUsage()

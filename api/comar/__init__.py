@@ -31,8 +31,8 @@ class Call:
 
     def __getitem__(self, key):
         if not self.class_:
-            raise KeyError, "Package should be selected after class"
-        if not isinstance(key, basestring):
+            raise KeyError("Package should be selected after class")
+        if not isinstance(key, str):
             raise KeyError
         return Call(self.link, self.group, self.class_, key)
 
@@ -51,14 +51,14 @@ class Call:
             obj = self.link.bus.get_object(self.link.address, "/", introspect=False)
             packages = obj.listModelApplications("%s.%s" % (self.group, self.class_), dbus_interface=self.link.interface)
             for package in packages:
-                yield unicode(package)
+                yield str(package)
 
     def call(self, *args, **kwargs):
         self.async = kwargs.get("async", None)
         self.quiet = kwargs.get("quiet", False)
         self.timeout = kwargs.get("timeout", 120)
         if self.async and self.quiet:
-            raise Exception, "async and quiet arguments can't be used together"
+            raise Exception("async and quiet arguments can't be used together")
         if self.async or self.quiet:
             if self.package:
                 obj = self.link.bus.get_object(self.link.address, "/package/%s" % self.package)
@@ -119,14 +119,14 @@ class Call:
                 met = getattr(obj, self.method)
                 try:
                     return met(dbus_interface="%s.%s.%s" % (self.link.interface, self.group, self.class_), timeout=self.timeout, *args)
-                except dbus.DBusException, exception:
+                except dbus.DBusException as exception:
                     if "policy.auth" in exception._dbus_error_name or "Comar.PolicyKit" in exception._dbus_error_name:
                         action = exception.get_dbus_message()
                         if self.queryPolicyKit(action):
                             return self.call(*args, **kwargs)
-                    raise dbus.DBusException, exception
+                    raise dbus.DBusException(exception)
             else:
-                raise AttributeError, "Package name required for non-async calls."
+                raise AttributeError("Package name required for non-async calls.")
 
     def queryPolicyKit(self, action):
         return False
@@ -161,14 +161,14 @@ class Link:
                     code = code.split("_")[0]
                 obj = self.bus.get_object(self.address, '/', introspect=False)
                 obj.setLocale(code, dbus_interface=self.interface)
-        except dbus.DBusException, exception:
+        except dbus.DBusException as exception:
             pass
 
     def cancel(self, method="*"):
         try:
             obj = self.bus.get_object(self.address, '/', introspect=False)
             return obj.cancel(method, dbus_interface=self.interface)
-        except dbus.DBusException, exception:
+        except dbus.DBusException as exception:
             return 0
 
     def listRunning(self, all=True):
@@ -176,7 +176,7 @@ class Link:
         try:
             obj = self.bus.get_object(self.address, '/', introspect=False)
             methods = obj.listRunning(all, dbus_interface=self.interface)
-        except dbus.DBusException, exception:
+        except dbus.DBusException as exception:
             return methods
         for index, method in enumerate(methods):
             if method.startswith("%s." % self.interface):

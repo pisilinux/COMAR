@@ -14,7 +14,7 @@ COMAR_TIMEOUT = 10
 
 def main():
     if os.getuid() != 0:
-        print "Must be run as root."
+        print("Must be run as root.")
         return -1
 
     # If COMAR 3.0 database is already initialized, do nothing.
@@ -30,7 +30,7 @@ def main():
                 init = True
                 break
         if init:
-            print "COMAR database is already initialized."
+            print("COMAR database is already initialized.")
             return 0
 
     bus = dbus.SystemBus()
@@ -53,7 +53,7 @@ def main():
         timeout -= 0.2
 
     if not obj:
-        print "Unable to start new COMAR service."
+        print("Unable to start new COMAR service.")
         return -2
 
     # Register all scripts
@@ -66,7 +66,7 @@ def main():
             if _app == "comar" and ignore_comar:
                 continue
             obj.register(_app, _model, os.path.join(COMAR_DB_OLD, filename), dbus_interface=COMAR_IFACE)
-            print "Registering %s" % filename
+            print("Registering %s" % filename)
 
     return 0
 

@@ -40,7 +40,7 @@ def register(app, model, filename):
     except:
         pass
     try:
-        file(scriptFile, "w").write("")
+        open(scriptFile, "w").write("")
     except:
         pass
 
@@ -64,7 +64,7 @@ def model_xml(modelName):
         xml = '<interface name="%s">' % config_interface()
     else:
         xml = '<interface name="%s.%s">' % (config_interface(), modelName)
-    for _name, (_type, _action_id, _sig_in, _sig_out) in config_modelbase()[modelName].iteritems():
+    for _name, (_type, _action_id, _sig_in, _sig_out) in config_modelbase()[modelName].items():
         if _type == 0:
             xml += '<method name="%s">' % _name
         else:

@@ -190,15 +190,15 @@ db_load_model(iks *xml, PyObject **py_models)
 
             // First argument is type. 0 for methods, 1 for signals
             if (iks_strcmp(iks_name(met), "method") == 0) {
-                PyTuple_SetItem(py_tuple, 0, PyInt_FromLong((long) 0));
+                PyTuple_SetItem(py_tuple, 0, PyLong_FromLong((long) 0));
             }
             else {
-                PyTuple_SetItem(py_tuple, 0, PyInt_FromLong((long) 1));
+                PyTuple_SetItem(py_tuple, 0, PyLong_FromLong((long) 1));
             }
 
             // Second argument is PolicyKit action ID
             char *action_id = db_action_id(iface_name, met);
-            PyTuple_SetItem(py_tuple, 1, PyString_FromString(action_id));
+            PyTuple_SetItem(py_tuple, 1, PyUnicode_FromString(action_id));
 
             // Build argument lists
             PyObject *py_args_in = PyList_New(0);
@@ -215,14 +215,14 @@ db_load_model(iks *xml, PyObject **py_models)
                 else if (iks_strcmp(iks_name(arg), "arg") == 0) {
                     if (iks_strcmp(iks_name(met), "method") == 0) {
                         if (iks_strcmp(iks_find_attrib(arg, "direction"), "out") == 0) {
-                            PyList_Append(py_args_out, PyString_FromString(iks_find_attrib(arg, "type")));
+                            PyList_Append(py_args_out, PyUnicode_FromString(iks_find_attrib(arg, "type")));
                         }
                         else {
-                            PyList_Append(py_args_in, PyString_FromString(iks_find_attrib(arg, "type")));
+                            PyList_Append(py_args_in, PyUnicode_FromString(iks_find_attrib(arg, "type")));
                         }
                     }
                     else if (iks_strcmp(iks_name(met), "signal") == 0) {
-                        PyList_Append(py_args_out, PyString_FromString(iks_find_attrib(arg, "type")));
+                        PyList_Append(py_args_out, PyUnicode_FromString(iks_find_attrib(arg, "type")));
                     }
                 }
             }

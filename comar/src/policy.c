@@ -68,19 +68,19 @@ policy_check(const char *sender, const char *action, int *result)
     }
 
     PyObject *subject = PyTuple_New(2);
-    PyTuple_SetItem(subject, 0, PyString_FromString("system-bus-name"));
+    PyTuple_SetItem(subject, 0, PyUnicode_FromString("system-bus-name"));
     PyObject *details = PyDict_New();
-    PyDict_SetItemString(details, "name", PyString_FromString(sender));
+    PyDict_SetItemString(details, "name", PyUnicode_FromString(sender));
     PyTuple_SetItem(subject, 1, details);
 
     PyObject *details2 = PyDict_New();
 
     PyObject *obj = PyTuple_New(5);
     PyTuple_SetItem(obj, 0, subject);
-    PyTuple_SetItem(obj, 1, PyString_FromString(action));
+    PyTuple_SetItem(obj, 1, PyUnicode_FromString(action));
     PyTuple_SetItem(obj, 2, details2);
-    PyTuple_SetItem(obj, 3, PyInt_FromLong((long) 1));
-    PyTuple_SetItem(obj, 4, PyString_FromString("abc"));
+    PyTuple_SetItem(obj, 3, PyLong_FromLong((long) 1));
+    PyTuple_SetItem(obj, 4, PyUnicode_FromString("abc"));
 
     PyObject *ret = bus_execute2(conn, "org.freedesktop.PolicyKit1", "/org/freedesktop/PolicyKit1/Authority", "org.freedesktop.PolicyKit1.Authority", "CheckAuthorization", obj, -1, "(sa{sv})sa{ss}us");
 
