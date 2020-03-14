@@ -18,7 +18,6 @@ import subprocess
 import fcntl
 import termios
 import pwd
-import grp
 import signal
 import time
 import shlex
@@ -105,7 +104,6 @@ config = Config()
 
 def startDependencies(*services):
     """Start other needed services.
-
     Arguments are service names.
     """
     for service in services:
@@ -113,6 +111,17 @@ def startDependencies(*services):
             call(service, "System.Service", "start")
         except:
             pass
+
+def stopDependencies(*services):
+    """Stop dependencies.
+    Arguments are service names.
+    """
+    for service in services:
+        try:
+            call(service, "System.Service", "stop")
+        except:
+            pass
+
 
 # Service control utilities
 
@@ -186,37 +195,10 @@ def _findProcesses(command=None, user=None, name=None):
         return pids
     return None
 
-def _changeUID(chuid):
-    """Change to this chuid (user:group)"""
-    c_user = chuid
-    c_group = None
-    if ":" in c_user:
-        c_user, c_group = c_user.split(":", 1)
-    cpw = pwd.getpwnam(c_user)
-    c_uid = cpw.pw_uid
-    if c_group:
-        cgr = grp.getgrnam(c_group)
-        c_gid = cgr.gr_gid
-    else:
-        c_gid = cpw.pw_gid
-        c_group = grp.getgrgid(cpw.pw_gid).gr_name
-
-    c_groups = []
-    for item in grp.getgrall():
-        if c_user in item.gr_mem:
-            c_groups.append(item.gr_gid)
-    if c_gid not in c_groups:
-        c_groups.append(c_gid)
-
-    os.setgid(c_gid)
-    os.setgroups(c_groups)
-    os.setuid(c_uid)
-
 # Service control API
 
 def startService(command, args=None, pidfile=None, makepid=False, nice=None, detach=False, chuid=None, donotify=False):
     """Start given service.
-
     command:  Path to the service executable.
     args:     Optional arguments to the service executable.
     pidfile:  Process ID of the service is kept in this file when running.
@@ -274,7 +256,7 @@ def startService(command, args=None, pidfile=None, makepid=False, nice=None, det
         if makepid and pidfile:
             open(pidfile, "w").write("%d\n" % os.getpid())
         if chuid:
-            _changeUID(chuid)
+            changeUID(chuid)
 
     popen = subprocess.Popen(cmd, close_fds=True, preexec_fn=fork_handler, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if detach:
@@ -298,7 +280,6 @@ def startService(command, args=None, pidfile=None, makepid=False, nice=None, det
 
 def stopService(pidfile=None, command=None, args=None, chuid=None, user=None, name=None, signalno=None, donotify=False):
     """Stop given service.
-
     pidfile:   Process ID of the service is kept in this file when running.
     command:   Stop processes running this executable.
     args:      Execute command with these args instead of killing with [signalno]
@@ -321,7 +302,7 @@ def stopService(pidfile=None, command=None, args=None, chuid=None, user=None, na
             cmd.extend(args)
 
         if chuid:
-            _changeUID(chuid)
+            changeUID(chuid)
 
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         ret = execReply(popen.wait())
@@ -370,7 +351,6 @@ def stopService(pidfile=None, command=None, args=None, chuid=None, user=None, na
 
 def isServiceRunning(pidfile=None, command=None):
     """Return if given service is currently running.
-
     pidfile:   Process ID of the service is kept in this file when running.
     command:   Check processes running this executable.
     """

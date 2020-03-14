@@ -118,7 +118,7 @@ script_signature(const char *model, const char *member, int direction)
 
     int i;
     for (i = 0; i < PyList_Size(py_list); i++) {
-        PyUnicode_Concat(py_str, PyList_GetItem(py_list, i));
+        py_str = PyUnicode_Concat(py_str, PyList_GetItem(py_list, i));
     }
 
     return PyUnicode_AsUTF8(py_str);

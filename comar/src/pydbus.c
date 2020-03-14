@@ -40,14 +40,11 @@ get_obj_sign(PyObject *obj)
      *
      */
 
-    if (PyUnicode_Check(obj) || PyUnicode_Check(obj)) {
+    if (PyUnicode_Check(obj)) {
         return "s";
     }
     else if (PyBool_Check(obj)) {
         return "b";
-    }
-    else if (PyLong_Check(obj)) {
-        return "i";
     }
     else if (PyLong_Check(obj)) {
         return "x";

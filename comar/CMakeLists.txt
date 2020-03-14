@@ -16,11 +16,11 @@ SET (APP_SUFFIX "3")
 
 # Uncomment this for production releases.
 SET (VERSION_SUFFIX "")
-SET (FLAGS "-g -O0 -Wcast-align -Wno-uninitialized -Wall -fstrict-aliasing")
+#SET (FLAGS "-g -O0 -Werror -Wcast-align -Wno-uninitialized -Wall -fstrict-aliasing")
 
 # Uncomment this for gprof profiling
 # SET (FLAGS "-g -O0 -Werror -Wcast-align -Wno-uninitialized -Wall -fstrict-aliasing -fprofile-arcs -ftest-coverage")
-SET (CMAKE_C_FLAGS "${FLAGS}")
+#SET (CMAKE_C_FLAGS "${FLAGS}")
 # Uncomment this for sparse building
 # SET (CMAKE_C_COMPILER cgcc)
 
@@ -31,7 +31,7 @@ ENDIF (APP_SUFFIX)
 
 # Define version, config dir, data dir and log file.
 ADD_DEFINITIONS (
-                 -D'PID_FILE="/var/run/${APP_NAME}.pid"'
+                 -D'PID_FILE="/run/${APP_NAME}.pid"'
                  -D'DATA_DIR="/var/lib/${APP_NAME}"'
                  -D'LOG_DIR="/var/log/${APP_NAME}"')
 

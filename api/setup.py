@@ -23,6 +23,7 @@ distfiles = """
     comar/*.py
 """
 
+
 def make_dist():
     distdir = "comar-api-%s" % version
     list = []
@@ -42,6 +43,7 @@ def make_dist():
     os.popen("tar -czf %s %s" % ("comar-api-" + version + ".tar.gz", distdir))
     shutil.rmtree(distdir)
 
+
 if "dist" in sys.argv:
     make_dist()
     sys.exit(0)
@@ -54,17 +56,17 @@ class Install(install):
             self.install_platlib = '$base/lib/pisilinux'
             self.install_purelib = '$base/lib/pisilinux'
         install.finalize_options(self)
-    
+
     def run(self):
         install.run(self)
 
 
 setup(
-    name = 'comar',
-    version = version,
-    description = 'COMAR API Functions',
-    url = 'http://www.pardus.org.tr/projeler/comar',
-    license = 'GNU GPL2',
-    package_dir = { '': '' },
-    packages = [ 'comar' ],
+    name='comar',
+    version=version,
+    description='COMAR API Functions',
+    url='https://github.com/pisilinux/COMAR',
+    license='GNU GPLv2',
+    package_dir={'': ''},
+    packages=['comar'],
 )
